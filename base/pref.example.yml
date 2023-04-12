@@ -12,6 +12,7 @@ common:
   default_external_config: "" # config/example_external_config.yml
   base_path: base
   clash_rule_base: base/all_base.tpl
+  clashmeta_rule_base: base/all_base.tpl
   surge_rule_base: base/all_base.tpl
   surfboard_rule_base: base/all_base.tpl
   mellow_rule_base: base/all_base.tpl
