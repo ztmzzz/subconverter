@@ -44,7 +44,7 @@ struct Settings
     //preferences
     RegexMatchConfigs renames, emojis;
     bool addEmoji = false, removeEmoji = false, appendType = false, filterDeprecated = true;
-    tribool UDPFlag, TFOFlag, skipCertVerify, TLS13Flag, enableInsert;
+    tribool UDPFlag,XUDPFlag, TFOFlag, skipCertVerify, TLS13Flag, enableInsert;
     bool enableSort = false, updateStrict = false;
     bool clashUseNewField = false;
     std::string clashProxiesStyle = "flow";
@@ -52,7 +52,7 @@ struct Settings
     int updateInterval = 0;
     std::string sortScript, filterScript;
 
-    std::string clashBase;
+    std::string clashBase, clashmetaBase;
     ProxyGroupConfigs customProxyGroups;
     std::string surgeBase, surfboardBase, mellowBase, quanBase, quanXBase, loonBase, SSSubBase;
     std::string surgeSSRPath, quanXDevID;
@@ -76,6 +76,7 @@ struct ExternalConfig
     ProxyGroupConfigs custom_proxy_group;
     RulesetConfigs surge_ruleset;
     std::string clash_rule_base;
+    std::string clashmeta_rule_base;
     std::string surge_rule_base;
     std::string surfboard_rule_base;
     std::string mellow_rule_base;

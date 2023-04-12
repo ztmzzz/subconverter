@@ -13,6 +13,8 @@ enum ProxyType
     Shadowsocks,
     ShadowsocksR,
     VMess,
+    VLESS,
+    Hysteria,
     Trojan,
     Snell,
     HTTP,
@@ -30,6 +32,10 @@ inline String getProxyTypeName(int type)
         return "SSR";
     case ProxyType::VMess:
         return "VMess";
+    case ProxyType::VLESS:
+        return "VLESS";
+    case ProxyType::Hysteria:
+        return "Hysteria";
     case ProxyType::Trojan:
         return "Trojan";
     case ProxyType::Snell:
@@ -70,25 +76,44 @@ struct Proxy
     String FakeType;
     bool TLSSecure = false;
 
+    String Flow;
+    bool FlowShow = false;
+
     String Host;
     String Path;
     String Edge;
 
     String QUICSecure;
     String QUICSecret;
+    String GRPCServiceName;
+    String GRPCMode;
 
     tribool UDP;
+    tribool XUDP;
     tribool TCPFastOpen;
     tribool AllowInsecure;
     tribool TLS13;
 
     uint16_t SnellVersion = 0;
     String ServerName;
+
+    String Auth;
+    String Alpn;
+    String UpMbps;
+    String DownMbps;
+    String Insecure;
+
+    String Fingerprint;
+    String PublicKey;
+    String ShortId;
+
 };
 
 #define SS_DEFAULT_GROUP "SSProvider"
 #define SSR_DEFAULT_GROUP "SSRProvider"
 #define V2RAY_DEFAULT_GROUP "V2RayProvider"
+#define XRAY_DEFAULT_GROUP "XRayProvider"
+#define HYSTERIA_DEFAULT_GROUP "HysteriaProvider"
 #define SOCKS_DEFAULT_GROUP "SocksProvider"
 #define HTTP_DEFAULT_GROUP "HTTPProvider"
 #define TROJAN_DEFAULT_GROUP "TrojanProvider"

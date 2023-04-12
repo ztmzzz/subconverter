@@ -327,7 +327,7 @@ std::string subconverter(RESPONSE_CALLBACK_ARGS)
     case "ss"_hash: case "ssd"_hash: case "ssr"_hash: case "sssub"_hash: case "v2ray"_hash: case "trojan"_hash: case "mixed"_hash:
         lSimpleSubscription = true;
         break;
-    case "clash"_hash: case "clashr"_hash: case "surge"_hash: case "quan"_hash: case "quanx"_hash: case "loon"_hash: case "surfboard"_hash: case "mellow"_hash:
+    case "clash"_hash: case "clashmeta"_hash: case "clashr"_hash: case "surge"_hash: case "quan"_hash: case "quanx"_hash: case "loon"_hash: case "surfboard"_hash: case "mellow"_hash:
         break;
     default:
         *status_code = 400;
@@ -347,7 +347,7 @@ std::string subconverter(RESPONSE_CALLBACK_ARGS)
 
     /// switches with default value
     tribool argUpload = getUrlArg(argument, "upload"), argEmoji = getUrlArg(argument, "emoji"), argAddEmoji = getUrlArg(argument, "add_emoji"), argRemoveEmoji = getUrlArg(argument, "remove_emoji");
-    tribool argAppendType = getUrlArg(argument, "append_type"), argTFO = getUrlArg(argument, "tfo"), argUDP = getUrlArg(argument, "udp"), argGenNodeList = getUrlArg(argument, "list");
+    tribool argAppendType = getUrlArg(argument, "append_type"), argTFO = getUrlArg(argument, "tfo"), argUDP = getUrlArg(argument, "udp"),argXUDP = getUrlArg(argument, "xudp"), argGenNodeList = getUrlArg(argument, "list");
     tribool argSort = getUrlArg(argument, "sort"), argUseSortScript = getUrlArg(argument, "sort_script");
     tribool argGenClashScript = getUrlArg(argument, "script"), argEnableInsert = getUrlArg(argument, "insert");
     tribool argSkipCertVerify = getUrlArg(argument, "scv"), argFilterDeprecated = getUrlArg(argument, "fdn"), argExpandRulesets = getUrlArg(argument, "expand"), argAppendUserinfo = getUrlArg(argument, "append_info");
@@ -367,7 +367,7 @@ std::string subconverter(RESPONSE_CALLBACK_ARGS)
         return "Invalid request!";
 
     /// for external configuration
-    std::string lClashBase = global.clashBase, lSurgeBase = global.surgeBase, lMellowBase = global.mellowBase, lSurfboardBase = global.surfboardBase;
+    std::string lClashBase = global.clashBase, lClashmetaBase = global.clashmetaBase, lSurgeBase = global.surgeBase, lMellowBase = global.mellowBase, lSurfboardBase = global.surfboardBase;
     std::string lQuanBase = global.quanBase, lQuanXBase = global.quanXBase, lLoonBase = global.loonBase, lSSSubBase = global.SSSubBase;
 
     /// validate urls
@@ -409,7 +409,7 @@ std::string subconverter(RESPONSE_CALLBACK_ARGS)
     /// check other flags
     ext.authorized = authorized;
     ext.append_proxy_type = argAppendType.get(global.appendType);
-    if((argTarget == "clash" || argTarget == "clashr") && argGenClashScript.is_undef())
+    if((argTarget == "clash" || argTarget == "clashmeta" || argTarget == "clashr") && argGenClashScript.is_undef())
         argExpandRulesets.define(true);
 
     ext.clash_proxies_style = global.clashProxiesStyle;
@@ -417,6 +417,7 @@ std::string subconverter(RESPONSE_CALLBACK_ARGS)
     /// read preference from argument, assign global var if not in argument
     ext.tfo.define(argTFO).define(global.TFOFlag);
     ext.udp.define(argUDP).define(global.UDPFlag);
+    ext.xudp.define(argXUDP).define(global.XUDPFlag);
     ext.skip_cert_verify.define(argSkipCertVerify).define(global.skipCertVerify);
     ext.tls13.define(argTLS13).define(global.TLS13Flag);
 
@@ -458,6 +459,7 @@ std::string subconverter(RESPONSE_CALLBACK_ARGS)
                 if(!lSimpleSubscription)
                 {
                     checkExternalBase(extconf.clash_rule_base, lClashBase);
+                    checkExternalBase(extconf.clashmeta_rule_base, lClashmetaBase);
                     checkExternalBase(extconf.surge_rule_base, lSurgeBase);
                     checkExternalBase(extconf.surfboard_rule_base, lSurfboardBase);
                     checkExternalBase(extconf.mellow_rule_base, lMellowBase);
@@ -707,14 +709,14 @@ std::string subconverter(RESPONSE_CALLBACK_ARGS)
     proxy = parseProxy(global.proxyConfig);
     switch(hash_(argTarget))
     {
-    case "clash"_hash: case "clashr"_hash:
-        writeLog(0, argTarget == "clashr" ? "Generate target: ClashR" : "Generate target: Clash", LOG_LEVEL_INFO);
+    case "clash"_hash: case "clashmeta"_hash: case "clashr"_hash:
+        writeLog(0, argTarget == "clashr" ? "Generate target: ClashR" : argTarget == "clashmeta" ? "Generate target: Clashmeta" : "Generate target: Clash" , LOG_LEVEL_INFO);
         tpl_args.local_vars["clash.new_field_name"] = ext.clash_new_field_name ? "true" : "false";
         response.headers["profile-update-interval"] = std::to_string(interval / 3600);
         if(ext.nodelist)
         {
             YAML::Node yamlnode;
-            proxyToClash(nodes, yamlnode, dummy_group, argTarget == "clashr", ext);
+            proxyToClash(nodes, yamlnode, dummy_group, hash_(argTarget), ext);
             output_content = YAML::Dump(yamlnode);
         }
         else
@@ -724,7 +726,7 @@ std::string subconverter(RESPONSE_CALLBACK_ARGS)
                 *status_code = 400;
                 return base_content;
             }
-            output_content = proxyToClash(nodes, base_content, lRulesetContent, lCustomProxyGroups, argTarget == "clashr", ext);
+            output_content = proxyToClash(nodes, base_content, lRulesetContent, lCustomProxyGroups, hash_(argTarget), ext);
         }
 
         if(argUpload)
@@ -1055,7 +1057,7 @@ std::string surgeConfToClash(RESPONSE_CALLBACK_ARGS)
     ext.clash_proxies_style = global.clashProxiesStyle;
 
     ProxyGroupConfigs dummy_groups;
-    proxyToClash(nodes, clash, dummy_groups, false, ext);
+    proxyToClash(nodes, clash, dummy_groups, "clash"_hash, ext);
 
     section.clear();
     ini.GetItems("Proxy", section);
