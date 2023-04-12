@@ -1,5 +1,7 @@
 # subconverter
-
+# TODO
+增加hysxxx协议的clash配置识别
+增加useragent判断
 Utility to convert between various proxy subscription formats.
 
 [![Build Status](https://github.com/tindy2013/subconverter/actions/workflows/build.yml/badge.svg)](https://github.com/tindy2013/subconverter/actions)
